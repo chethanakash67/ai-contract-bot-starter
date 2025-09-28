@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Organization {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  users     Membership[]
+  createdAt DateTime     @default(now())
+}
+
+model User {
+  id        String       @id @default(cuid())
+  email     String       @unique
+  name      String?
+  orgs      Membership[]
+  createdAt DateTime     @default(now())
+}
+
+model Membership {
+  id String @id @default(cuid())
+
+  // FKs
+  userId String
+  orgId  String
+  role   String // "owner" | "admin" | "editor" | "viewer"
+
+  // Relations (the missing piece)
+  user User         @relation(fields: [userId], references: [id])
+  org  Organization @relation(fields: [orgId], references: [id])
+
+  @@unique([userId, orgId])
+  @@index([userId])
+  @@index([orgId])
+}
+
+model Template {
+  id        String   @id @default(cuid())
+  name      String   @unique // <-- make name unique so upsert by name works
+  type      String
+  version   Int      @default(1)
+  content   Json
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Clause {
+  id           String   @id @default(cuid())
+  title        String
+  body         String
+  tags         String[]
+  jurisdiction String?
+  risk         String
+  createdAt    DateTime @default(now())
+}
+
+model Agreement {
+  id         String   @id @default(cuid())
+  orgId      String
+  templateId String
+  status     String   @default("draft") // draft|review|out_for_signature|executed|void
+  variables  Json?
+  draftHtml  String?
+  pdfUrl     String?
+  hash       String?
+  createdAt  DateTime @default(now())
+}
+
+model Party {
+  id          String  @id @default(cuid())
+  agreementId String
+  name        String
+  email       String
+  title       String?
+  role        String // "agency" | "client" | "employee" | "witness"
+  order       Int     @default(1)
+}
+
+model SignatureEvent {
+  id          String   @id @default(cuid())
+  agreementId String
+  partyId     String
+  type        String // viewed|sent|signed|declined
+  ip          String?
+  ua          String?
+  ts          DateTime @default(now())
+}
