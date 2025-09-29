@@ -3,11 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev.mjs",
+    "dev:raw": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "ts-node prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "seed": "ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed.ts",
+    "db:up": "docker compose up -d",
+    "db:ps": "docker compose ps",
+    "db:down": "docker compose down",
+    "postinstall": "prisma generate",
+    "pw:install": "npx playwright install chromium"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.701.0",
@@ -17,12 +22,14 @@
     "@tiptap/starter-kit": "^2.6.6",
     "hellosign-sdk": "2.1.0",
     "js-sha256": "^0.11.0",
+    "lucide-react": "^0.544.0",
     "next": "14.2.12",
     "openai": "^4.56.0",
     "playwright": "^1.47.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hook-form": "^7.53.0",
+    "react-hot-toast": "^2.6.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -32,7 +39,7 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.47",
     "prisma": "^5.19.1",
-    "tailwindcss": "^3.4.13",
+    "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }

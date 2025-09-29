@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import HelloSign from "hellosign-sdk";
 
 export async function POST(_: Request, { params }: { params: { id: string }}) {
+  if (!process.env.HELLOSIGN_API_KEY) {
+    return NextResponse.json({ error: "HelloSign is not configured" }, { status: 400 });
+  }
   const ag = await prisma.agreement.findUnique({ where: { id: params.id } });
   if (!ag?.pdfUrl) return NextResponse.json({ error: "Generate PDF first" }, { status: 400 });
 

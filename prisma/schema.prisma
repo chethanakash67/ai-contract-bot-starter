@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -44,7 +44,7 @@ model Template {
   name      String   @unique // <-- make name unique so upsert by name works
   type      String
   version   Int      @default(1)
-  content   Json
+  content   String
   isPublic  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
@@ -53,7 +53,7 @@ model Clause {
   id           String   @id @default(cuid())
   title        String
   body         String
-  tags         String[]
+  tags         String
   jurisdiction String?
   risk         String
   createdAt    DateTime @default(now())
@@ -64,7 +64,7 @@ model Agreement {
   orgId      String
   templateId String
   status     String   @default("draft") // draft|review|out_for_signature|executed|void
-  variables  Json?
+  variables  String?
   draftHtml  String?
   pdfUrl     String?
   hash       String?
