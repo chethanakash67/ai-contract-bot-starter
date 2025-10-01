@@ -1,9 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getSession, requireSession } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const items = await prisma.agreement.findMany({ orderBy: { createdAt: "desc" }, take: 50 });
+    const s = await getSession();
+    if (!s) return NextResponse.json([], { status: 200 });
+    const url = new URL(req.url);
+    const status = url.searchParams.get("status") || undefined;
+    const where: any = { orgId: s.orgId };
+    if (status) where.status = status;
+    const items = await prisma.agreement.findMany({ where, orderBy: { createdAt: "desc" }, take: 100 });
     const withNames = items.map((a: any) => {
       let v: any = {};
       try { v = a.variables ? JSON.parse(a.variables) : {}; } catch { v = {}; }
@@ -25,7 +32,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { templateId, ...vars } = body || {};
+    const { templateId, kind, ...vars } = body || {};
+    const s = await requireSession();
 
     let tplId: string | undefined = typeof templateId === "string" ? templateId.trim() : undefined;
 
@@ -45,6 +53,9 @@ export async function POST(req: NextRequest) {
       const key = slug.toLowerCase();
       if (key === 'nda') {
         const t = await prisma.template.findFirst({ where: { type: 'nda' }, orderBy: { createdAt: 'desc' } });
+        if (t) return t.id;
+      } else if (key === 'proposal') {
+        const t = await prisma.template.findFirst({ where: { type: 'proposal' }, orderBy: { createdAt: 'desc' } });
         if (t) return t.id;
       } else if (key === 'service' || key === 'msa' || key.includes('service')) {
         const t = await prisma.template.findFirst({ where: { type: 'service' }, orderBy: { createdAt: 'desc' } });
@@ -69,11 +80,14 @@ export async function POST(req: NextRequest) {
     tplId = await resolveTemplateId(tplId);
 
     const ag = await prisma.agreement.create({
-      data: { templateId: tplId, orgId: "demo-org", variables: JSON.stringify(vars || {}), status: "draft" }
+      data: { templateId: tplId, orgId: s.orgId, variables: JSON.stringify(vars || {}), status: "draft", kind: (kind === 'proposal' ? 'proposal' : 'contract') }
     });
     return NextResponse.json({ id: ag.id });
   } catch (err: any) {
     const message = err?.message || "Unknown error";
+    if (message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const code = err?.code;
     if (code === "P1001" || /Can't reach database server/i.test(message)) {
       return NextResponse.json(

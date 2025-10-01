@@ -153,7 +153,8 @@ async function main() {
   await ensurePrisma();
 
   log('Starting Next.js dev server...');
-  const child = spawn('next', ['dev'], { stdio: 'inherit', env: process.env });
+  // const child = spawn('next', ['dev'], { stdio: 'inherit', env: process.env });
+  const child = spawn('npx', ['next', 'dev'], { stdio: 'inherit', env: process.env, shell:true });
   child.on('exit', (code) => process.exit(code ?? 0));
 }
 

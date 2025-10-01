@@ -64,6 +64,7 @@ model Agreement {
   orgId      String
   templateId String
   status     String   @default("draft") // draft|review|out_for_signature|executed|void
+  kind       String   @default("contract") // contract|proposal
   variables  String?
   draftHtml  String?
   pdfUrl     String?
@@ -86,6 +87,23 @@ model SignatureEvent {
   agreementId String
   partyId     String
   type        String // viewed|sent|signed|declined
+  ip          String?
+  ua          String?
+  ts          DateTime @default(now())
+}
+
+model PublicLink {
+  id            String   @id @default(cuid())
+  agreementId   String
+  token         String   @unique
+  allowDownload Boolean  @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+}
+
+model ViewEvent {
+  id          String   @id @default(cuid())
+  agreementId String
   ip          String?
   ua          String?
   ts          DateTime @default(now())

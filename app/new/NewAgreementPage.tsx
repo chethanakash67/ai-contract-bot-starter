@@ -4,17 +4,19 @@ import { useForm, Controller } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FileText, Shield, Briefcase } from "lucide-react";
+import { FileText, Shield, Briefcase, FileSignature } from "lucide-react";
 import Link from "next/link";
 
 const templates = [
   { id: 'nda', name: 'Non-Disclosure', icon: <Shield size={24}/>, desc: 'A standard mutual non-disclosure agreement.' },
   { id: 'service', name: 'Service Agreement', icon: <Briefcase size={24}/>, desc: 'For contractors and service providers.' },
-  { id: 'custom', name: 'Custom', icon: <FileText size={24}/>, desc: 'Start with a blank custom agreement.' },
+  { id: 'proposal', name: 'Proposal', icon: <FileSignature size={24}/>, desc: 'Client-facing proposal with scope and pricing.' },
+  { id: 'custom', name: 'Custom', icon: <FileText size={24}/>, desc: 'Start with a blank custom document.' },
 ];
 
 type AgreementForm = {
   templateId: string;
+  kind?: 'contract' | 'proposal';
   discloser_name: string;
   recipient_name: string;
   effective_date: string;
@@ -28,10 +30,14 @@ type AgreementForm = {
   client_name?: string;
   fees?: string;
   payment_terms?: string;
+  // Proposal fields
+  budget?: string;
+  timeline?: string;
 };
 
 export default function NewAgreementPage() {
   const [selectedTemplate, setSelectedTemplate] = useState('nda');
+  const isProposal = selectedTemplate === 'proposal';
   const router = useRouter();
   const today = new Date();
   const isoToday = today.toISOString().split('T')[0];
@@ -39,6 +45,7 @@ export default function NewAgreementPage() {
   const { register, handleSubmit, control, formState: { isSubmitting }, setValue, watch } = useForm<AgreementForm>({
     defaultValues: {
       templateId: "nda",
+      kind: 'contract',
       discloser_name: "",
       recipient_name: "",
       effective_date: isoToday,
@@ -50,13 +57,16 @@ export default function NewAgreementPage() {
       provider_name: "",
       client_name: "",
       fees: "",
-      payment_terms: ""
+      payment_terms: "",
+      budget: "",
+      timeline: ""
     }
   });
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
     setValue('templateId', templateId);
+    setValue('kind', templateId === 'proposal' ? 'proposal' : 'contract');
   }
 
   const onSubmit = async (data: any) => {
@@ -64,7 +74,15 @@ export default function NewAgreementPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
-    }).then(res => res.ok ? res.json() : res.json().then(err => Promise.reject(err)));
+    }).then(async res => {
+      if (res.ok) return res.json();
+      const err = await res.json().catch(()=>({}));
+      if (res.status === 401) {
+        window.location.href = "/login?next=/new";
+        throw new Error('Please sign in');
+      }
+      return Promise.reject(err);
+    });
 
     toast.promise(promise, {
       loading: 'Creating agreement...',
@@ -106,7 +124,20 @@ export default function NewAgreementPage() {
 
         <div>
           <h2 className="text-lg font-semibold text-gray-800">2. Fill in the Details</h2>
-          {selectedTemplate === 'service' ? (
+          {isProposal ? (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input {...register("client_name", { required: true })} placeholder="Client Name" className="border p-2 w-full rounded-md" />
+              <input {...register("provider_name", { required: true })} placeholder="Your Agency/Freelancer Name" className="border p-2 w-full rounded-md" />
+              <input {...register("budget")} placeholder="Budget (e.g., $5,000)" className="border p-2 w-full rounded-md" />
+              <input {...register("timeline")} placeholder="Timeline (e.g., 6 weeks)" className="border p-2 w-full rounded-md" />
+              <input type="date" {...register("start_date", { required: true })} className="border p-2 w-full rounded-md" placeholder="Start Date" />
+              <input type="date" {...register("end_date", { required: true })} className="border p-2 w-full rounded-md" placeholder="End Date" />
+              <input {...register("jurisdiction")} placeholder="Governing Law (e.g., India)" className="border p-2 w-full rounded-md" />
+              <div className="sm:col-span-2">
+                <textarea {...register("description")} placeholder="Project scope, deliverables, success metrics, assumptions..." rows={4} className="border p-2 w-full rounded-md" />
+              </div>
+            </div>
+          ) : selectedTemplate === 'service' ? (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input {...register("provider_name", { required: true })} placeholder="Provider Name" className="border p-2 w-full rounded-md" />
               <input {...register("client_name", { required: true })} placeholder="Client Name" className="border p-2 w-full rounded-md" />

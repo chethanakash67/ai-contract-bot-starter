@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import HelloSign from "hellosign-sdk";
+import { requireSession } from "@/lib/auth";
 
 export async function POST(_: Request, { params }: { params: { id: string }}) {
   if (!process.env.HELLOSIGN_API_KEY) {
     return NextResponse.json({ error: "HelloSign is not configured" }, { status: 400 });
   }
-  const ag = await prisma.agreement.findUnique({ where: { id: params.id } });
+  const s = await requireSession();
+  const ag = await prisma.agreement.findFirst({ where: { id: params.id, orgId: s.orgId } });
   if (!ag?.pdfUrl) return NextResponse.json({ error: "Generate PDF first" }, { status: 400 });
 
   const hellosign = HelloSign({ key: process.env.HELLOSIGN_API_KEY! });

@@ -43,3 +43,12 @@ Open http://localhost:3000/new — paste a Template ID from Prisma Studio (for n
 > This is an MVP scaffold. Add auth, RBAC, template picker, parties UI, e-sign webhook verification, etc.
 
 # ai-contract-bot-starter
+
+
+Current errors:
+font dropdown is not working
+.List, 1. List is not working in edit thing
+Share email buttons is not working
+response time is high
+Validate function is not working properly
+Needed more clarity on the features and clients in the product.

@@ -12,6 +12,9 @@ export default function Header() {
         <nav className="ml-8 flex items-center gap-4 text-sm">
           <Link href="/agreements" className="text-gray-700 hover:text-black">Agreements</Link>
           <Link href="/new" className="text-gray-700 hover:text-black">New</Link>
+          <form action="/api/auth/logout" method="post">
+            <button className="text-gray-700 hover:text-black" type="submit">Sign out</button>
+          </form>
         </nav>
       </div>
     </header>
