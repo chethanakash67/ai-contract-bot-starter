@@ -54,6 +54,32 @@ async function main() {
     create: { name: "Service Agreement v1", type: "service", content: svcContent }
   });
 
+  // Proposal template
+  const proposalContent = JSON.stringify({
+    parties: { provider: "{{provider_name}}", client: "{{client_name}}" },
+    body: `
+<h1>Project Proposal</h1>
+<p>Prepared by {{provider_name}} for {{client_name}}.</p>
+<h2>Executive Summary</h2>
+<p>{{description}}</p>
+<h2>Scope of Work</h2>
+<p>Detail the deliverables, milestones, and acceptance criteria.</p>
+<h2>Timeline</h2>
+<p>Expected timeline: {{timeline}} (from {{start_date}} to {{end_date}}).</p>
+<h2>Pricing</h2>
+<p>Estimated budget: {{budget}}.</p>
+<h2>Terms</h2>
+<p>Standard terms apply. Governing law: {{jurisdiction}}.</p>
+<h2>Signatures</h2>
+<p>— {{provider_name}} / {{client_name}}</p>`
+  });
+
+  let prop = await prisma.template.upsert({
+    where: { name: "Proposal v1" },
+    update: { type: "proposal", content: proposalContent },
+    create: { name: "Proposal v1", type: "proposal", content: proposalContent }
+  });
+
   await prisma.clause.createMany({
     data: [
       { title: "Force Majeure", body: "<p>Neither party is liable for delays caused by events beyond reasonable control…</p>", tags: JSON.stringify(["force_majeure","neutral"]), jurisdiction: null, risk: "balanced" },
@@ -61,7 +87,7 @@ async function main() {
     ]
   });
 
-  console.log("Seeded templates:", tpl.id, svc.id);
+  console.log("Seeded templates:", tpl.id, svc.id, prop.id);
 }
 
 main().finally(()=>prisma.$disconnect());

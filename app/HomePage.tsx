@@ -9,15 +9,18 @@ interface Agreement {
   discloser_name: string;
   recipient_name: string;
   createdAt: string;
+  status: 'draft' | 'completed' | 'accepted';
 }
 
 export default function HomePage() {
   const [agreements, setAgreements] = useState<Agreement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<string>("");
 
-  async function fetchAgreements() {
+  async function fetchAgreements(s?: string) {
     try {
-      const response = await fetch('/api/agreements', { cache: 'no-store' });
+      const qs = s ? `?status=${encodeURIComponent(s)}` : '';
+      const response = await fetch(`/api/agreements${qs}`, { cache: 'no-store' });
       let json: unknown = [];
       try {
         json = await response.json();
@@ -45,8 +48,8 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    fetchAgreements();
-  }, []);
+    fetchAgreements(status);
+  }, [status]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.preventDefault(); // Prevent link navigation
@@ -70,6 +73,15 @@ export default function HomePage() {
           New Agreement
         </Link>
       </div>
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-gray-600">Filter:</label>
+        <select value={status} onChange={(e)=>setStatus(e.target.value)} className="border rounded px-2 py-1 text-sm">
+          <option value="">All</option>
+          <option value="draft">draft</option>
+          <option value="completed">completed</option>
+          <option value="accepted">accepted</option>
+        </select>
+      </div>
 
       {loading ? (
         <div className="text-center py-10 text-gray-500">Loading agreements...</div>
@@ -88,7 +100,12 @@ export default function HomePage() {
               <div className="p-5">
                 <div className="flex justify-between items-start">
                   <p className="font-semibold text-lg text-gray-800">{title}</p>
-                  <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Draft</span>
+                  <span className={(() => {
+                    const base = 'text-xs font-medium px-2 py-1 rounded-full';
+                    if (agreement.status === 'completed') return `${base} bg-amber-100 text-amber-800`;
+                    if (agreement.status === 'accepted') return `${base} bg-green-100 text-green-800`;
+                    return `${base} bg-blue-100 text-blue-800`;
+                  })()}>{agreement.status || 'draft'}</span>
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
                   Created: {new Date(agreement.createdAt).toLocaleDateString()}

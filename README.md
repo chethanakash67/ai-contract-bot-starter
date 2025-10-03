@@ -41,5 +41,3 @@ Open http://localhost:3000/new — paste a Template ID from Prisma Studio (for n
 - **AI Generate → Save → Validate → Export PDF**
 
 > This is an MVP scaffold. Add auth, RBAC, template picker, parties UI, e-sign webhook verification, etc.
-
-# ai-contract-bot-starter

@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { requireSession } from "@/lib/auth";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 export async function POST(_: Request, { params }: { params: { id: string }}) {
-  const ag = await prisma.agreement.findUnique({ where: { id: params.id } });
+  const s = await requireSession();
+  const ag = await prisma.agreement.findFirst({ where: { id: params.id, orgId: s.orgId } });
   if (!ag) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   // Resolve template by stored id or slug fallback
@@ -15,6 +17,8 @@ export async function POST(_: Request, { params }: { params: { id: string }}) {
     if (key) {
       if (key === 'nda') {
         tpl = await prisma.template.findFirst({ where: { type: 'nda' }, orderBy: { createdAt: 'desc' } });
+      } else if (key === 'proposal') {
+        tpl = await prisma.template.findFirst({ where: { type: 'proposal' }, orderBy: { createdAt: 'desc' } });
       } else if (key === 'service' || key === 'msa' || key.includes('service')) {
         tpl = await prisma.template.findFirst({ where: { type: 'service' }, orderBy: { createdAt: 'desc' } });
       } else if (key === 'custom' || key === 'blank') {
