@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Plus, Trash2, FileText, ArrowRight } from "lucide-react";
+import { useLoading } from "./components/LoadingContext";
 
 interface Agreement {
   id: string;
@@ -16,9 +17,11 @@ export default function HomePage() {
   const [agreements, setAgreements] = useState<Agreement[]>([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<string>("");
+  const { start: startLoading, stop: stopLoading } = useLoading();
 
   async function fetchAgreements(s?: string) {
     try {
+      startLoading();
       const qs = s ? `?status=${encodeURIComponent(s)}` : '';
       const response = await fetch(`/api/agreements${qs}`, { cache: 'no-store' });
       let json: unknown = [];
@@ -44,6 +47,7 @@ export default function HomePage() {
       setAgreements([]);
     } finally {
       setLoading(false);
+      stopLoading();
     }
   }
 
@@ -56,11 +60,14 @@ export default function HomePage() {
     if (!confirm('Are you sure you want to delete this agreement?')) return;
 
     try {
+      startLoading();
       const response = await fetch(`/api/agreements/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete');
       await fetchAgreements(); // Refresh list
     } catch (error) {
       console.error("Deletion failed:", error);
+    } finally {
+      stopLoading();
     }
   };
 
@@ -68,7 +75,7 @@ export default function HomePage() {
     <main className="max-w-5xl mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Contract Dashboard</h1>
-        <Link href="/new" className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors shadow-sm">
+        <Link href="/new" onClick={() => startLoading()} className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors shadow-sm">
           <Plus size={18} />
           New Agreement
         </Link>
@@ -96,7 +103,7 @@ export default function HomePage() {
           {(Array.isArray(agreements) ? agreements : []).map((agreement) => {
             const title = [agreement.discloser_name, agreement.recipient_name].filter(Boolean).join(' & ') || 'Untitled Agreement';
             return (
-            <Link key={agreement.id} href={`/agreements/${agreement.id}/edit`} className="block group bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <Link key={agreement.id} href={`/agreements/${agreement.id}/edit`} onClick={() => startLoading()} className="block group bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow">
               <div className="p-5">
                 <div className="flex justify-between items-start">
                   <p className="font-semibold text-lg text-gray-800">{title}</p>

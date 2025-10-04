@@ -37,7 +37,7 @@ A minimal Next.js (App Router + TypeScript) starter for a web-based **AI Proposa
    npm run dev
    ```
 
-Open http://localhost:3000/new — paste a Template ID from Prisma Studio (for now) and test:
+Open your app at APP_URL/new (for local dev, http://localhost:3000/new) — paste a Template ID from Prisma Studio (for now) and test:
 - **AI Generate → Save → Validate → Export PDF**
 
 > This is an MVP scaffold. Add auth, RBAC, template picker, parties UI, e-sign webhook verification, etc.

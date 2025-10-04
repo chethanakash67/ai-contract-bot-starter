@@ -50,11 +50,8 @@ async function main() {
 `
   });
 
-  const tplUpsert = prisma.template.upsert({
-    where: { name: "Balanced NDA v2" },
-    update: { type: "nda", content: ndaContent },
-    create: { name: "Balanced NDA v2", type: "nda", content: ndaContent }
-  });
+  // Do not execute on the root client when using an interactive transaction later.
+  // We'll run these with the `tx` client inside $transaction.
 
   // ---------- Service Agreement Template ----------
   const svcContent = JSON.stringify({
@@ -101,11 +98,7 @@ async function main() {
 `
   });
 
-  const svcUpsert = prisma.template.upsert({
-    where: { name: "Service Agreement v2" },
-    update: { type: "service", content: svcContent },
-    create: { name: "Service Agreement v2", type: "service", content: svcContent }
-  });
+  // see note above
 
   // ---------- Proposal Template ----------
   const proposalContent = JSON.stringify({
@@ -146,15 +139,27 @@ async function main() {
 `
   });
 
-  const propUpsert = prisma.template.upsert({
-    where: { name: "Proposal v2" },
-    update: { type: "proposal", content: proposalContent },
-    create: { name: "Proposal v2", type: "proposal", content: proposalContent }
-  });
+  // see note above
 
   // ---------- Seed Sample Clauses ----------
   const seeded = await prisma.$transaction(async (tx) => {
-    const [tpl, svc, prop] = await tx.$transaction([tplUpsert, svcUpsert, propUpsert]);
+    const [tpl, svc, prop] = await Promise.all([
+      tx.template.upsert({
+        where: { name: "Balanced NDA v2" },
+        update: { type: "nda", content: ndaContent },
+        create: { name: "Balanced NDA v2", type: "nda", content: ndaContent },
+      }),
+      tx.template.upsert({
+        where: { name: "Service Agreement v2" },
+        update: { type: "service", content: svcContent },
+        create: { name: "Service Agreement v2", type: "service", content: svcContent },
+      }),
+      tx.template.upsert({
+        where: { name: "Proposal v2" },
+        update: { type: "proposal", content: proposalContent },
+        create: { name: "Proposal v2", type: "proposal", content: proposalContent },
+      }),
+    ]);
 
     // Make clause seeding idempotent and avoid duplicates
     await tx.clause.deleteMany({});
@@ -177,7 +182,7 @@ async function main() {
           risk: "balanced",
         },
       ],
-      skipDuplicates: true,
+      // skipDuplicates: true,
     });
 
     return { tpl, svc, prop };

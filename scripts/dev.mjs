@@ -19,6 +19,8 @@ env.NEXT_DISABLE_WEBPACK_CACHE = env.NEXT_DISABLE_WEBPACK_CACHE ?? '1';
 // Increase Node heap for large workspaces without relying on global shell config
 const nodeOpts = env.NODE_OPTIONS ? `${env.NODE_OPTIONS} --max-old-space-size=4096` : '--max-old-space-size=4096';
 env.NODE_OPTIONS = nodeOpts;
+// Default dev port to 3001 unless overridden
+env.PORT = env.PORT ?? '3001';
 
 // Prefer Turbopack for faster HMR; allow opt-out via NO_TURBO=1
 const args = ['dev'];
