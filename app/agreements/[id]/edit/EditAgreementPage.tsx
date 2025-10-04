@@ -394,14 +394,7 @@ export default function EditAgreementPage({ params }: { params: { id: string } }
                 <option key={opt.label} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            <button
-              type="button"
-              className="toolbar-btn"
-              title="Add Page Break"
-              onClick={() => editor?.chain().focus().insertContent('<div class="page-break"></div>').run()}
-            >
-              + Page
-            </button>
+            {/* Removed "+ Page" button that inserted page-breaks */}
           </div>
         </div>
         <EditorContent editor={editor} className={`latex-editor ${agreementData.status !== 'draft' ? 'pointer-events-none opacity-75' : ''}`} />
