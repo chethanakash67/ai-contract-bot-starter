@@ -12,7 +12,7 @@
     "db:up": "docker compose up -d",
     "db:ps": "docker compose ps",
     "db:down": "docker compose down",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && npx playwright install chromium",
     "pw:install": "npx playwright install chromium"
   },
   "prisma": {
