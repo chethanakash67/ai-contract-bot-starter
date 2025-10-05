@@ -21,7 +21,7 @@ export default function ActionsClient({ id, status }: { id: string; status: 'dra
   }
 
   return (
-    <span className="inline-flex gap-2">
+    <span className="inline-flex gap-2" suppressHydrationWarning>
       <button onClick={exportPdf} className="px-2 py-1 border rounded" type="button">Export PDF</button>
       <button onClick={finalize} disabled={status !== 'draft'} className="px-2 py-1 border rounded disabled:opacity-50" type="button">Final</button>
     </span>
