@@ -1,4 +1,4 @@
-import { Extension } from '@tiptap/core';
+import { Extension, type CommandProps } from '@tiptap/core';
 
 export const FontSize = Extension.create({
   name: 'fontSize',
@@ -13,7 +13,7 @@ export const FontSize = Extension.create({
               if (!attributes.fontSize) return {};
               return { style: `font-size: ${attributes.fontSize}` };
             },
-            parseHTML: (element) => ({ fontSize: element.style.fontSize || null }),
+            parseHTML: (element) => ({ fontSize: (element as HTMLElement).style.fontSize || null }),
           },
         },
       },
@@ -23,11 +23,11 @@ export const FontSize = Extension.create({
     return {
       setFontSize:
         (size?: string) =>
-        ({ chain }) => {
+        ({ chain }: CommandProps) => {
           return chain().setMark('textStyle', { fontSize: size || null }).run();
         },
-      unsetFontSize: () => ({ chain }) => chain().setMark('textStyle', { fontSize: null }).run(),
-    };
+      unsetFontSize: () => ({ chain }: CommandProps) => chain().setMark('textStyle', { fontSize: null }).run(),
+    } as any;
   },
 });
 

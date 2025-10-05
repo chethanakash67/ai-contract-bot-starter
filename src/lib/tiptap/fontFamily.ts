@@ -1,4 +1,4 @@
-import { Extension } from '@tiptap/core';
+import { Extension, type CommandProps } from '@tiptap/core';
 
 export const FontFamily = Extension.create({
   name: 'fontFamily',
@@ -13,7 +13,7 @@ export const FontFamily = Extension.create({
               if (!attributes.fontFamily) return {};
               return { style: `font-family: ${attributes.fontFamily}` };
             },
-            parseHTML: (element) => ({ fontFamily: element.style.fontFamily || null }),
+            parseHTML: (element) => ({ fontFamily: (element as HTMLElement).style.fontFamily || null }),
           },
         },
       },
@@ -23,9 +23,9 @@ export const FontFamily = Extension.create({
     return {
       setFontFamily:
         (family?: string) =>
-        ({ chain }) => chain().setMark('textStyle', { fontFamily: family || null }).run(),
-      unsetFontFamily: () => ({ chain }) => chain().setMark('textStyle', { fontFamily: null }).run(),
-    };
+        ({ chain }: CommandProps) => chain().setMark('textStyle', { fontFamily: family || null }).run(),
+      unsetFontFamily: () => ({ chain }: CommandProps) => chain().setMark('textStyle', { fontFamily: null }).run(),
+    } as any;
   },
 });
 
