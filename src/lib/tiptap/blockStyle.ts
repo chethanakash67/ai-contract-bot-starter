@@ -1,4 +1,4 @@
-import { Extension } from '@tiptap/core';
+import { Extension, type CommandProps } from '@tiptap/core';
 
 // Applies fontFamily and fontSize styles at the block level (paragraph/headings)
 export const BlockStyle = Extension.create({
@@ -26,7 +26,7 @@ export const BlockStyle = Extension.create({
     return {
       setBlockFontFamily:
         (family?: string) =>
-        ({ chain }) => {
+        ({ chain }: CommandProps) => {
           const v = family || null;
           return chain()
             .updateAttributes('paragraph', { fontFamily: v })
@@ -36,7 +36,7 @@ export const BlockStyle = Extension.create({
         },
       setBlockFontSize:
         (size?: string) =>
-        ({ chain }) => {
+        ({ chain }: CommandProps) => {
           const v = size || null;
           return chain()
             .updateAttributes('paragraph', { fontSize: v })
