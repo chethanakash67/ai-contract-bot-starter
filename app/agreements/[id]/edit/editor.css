@@ -133,17 +133,15 @@
 .latex-prose h2,
 .latex-prose h3 {
   font-family: "Source Sans Pro", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 800; /* make headings bold */
   text-transform: uppercase;
   letter-spacing: 0.12em;
   margin: 1.75em 0 0.85em;
   color: #111827;
 }
 
-/* Larger, clearer heading sizes */
-.latex-prose h1 { font-size: 2.25rem; }
-.latex-prose h2 { font-size: 1.75rem; }
-.latex-prose h3 { font-size: 1.35rem; }
+.latex-prose h1 { font-size: 1.85rem; }
+.latex-prose h2 { font-size: 1.35rem; }
+.latex-prose h3 { font-size: 1.15rem; }
 
 .latex-prose p {
   margin: 0 0 1.1em;
@@ -162,13 +160,6 @@
   padding-left: 1.75em;
   margin: 0 0 1.1em;
 }
-
-/* Ensure list markers show in all browsers */
-.latex-prose ul { list-style: disc outside; }
-.latex-prose ol { list-style: decimal outside; }
-/* Also cover ProseMirror internal nodes explicitly */
-.latex-editor .ProseMirror ul { list-style: disc outside; }
-.latex-editor .ProseMirror ol { list-style: decimal outside; }
 
 .latex-prose li {
   margin-bottom: 0.5em;

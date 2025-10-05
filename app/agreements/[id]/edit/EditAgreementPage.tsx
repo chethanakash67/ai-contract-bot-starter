@@ -165,10 +165,6 @@ export default function EditAgreementPage({ params }: { params: { id: string } }
           }
           break;
         case 'validate': {
-          // Save before validate so backend sees latest draft if needed
-          if ((agreementData?.status || 'draft') === 'draft') {
-            await fetch(`/api/agreements/${params.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draftHtml: html }) });
-          }
           const res = await fetch(`/api/agreements/${params.id}/validate`, { method: "POST" });
           const j = await res.json();
           const errs = (j?.errors || []) as string[];
@@ -354,10 +350,9 @@ export default function EditAgreementPage({ params }: { params: { id: string } }
                 const paraSz = (editor.getAttributes('paragraph') as any)?.fontSize;
                 const headSz = (editor.getAttributes('heading') as any)?.fontSize;
                 let raw: any = markSz || paraSz || headSz;
-                // Default inferred sizes to match CSS/export styles
-                if (!raw && editor.isActive('heading', { level: 1 })) raw = `${Math.round(2.25*16)}px`;
-                if (!raw && editor.isActive('heading', { level: 2 })) raw = `${Math.round(1.75*16)}px`;
-                if (!raw && editor.isActive('heading', { level: 3 })) raw = `${Math.round(1.35*16)}px`;
+                if (!raw && editor.isActive('heading', { level: 1 })) raw = `${Math.round(1.85*16)}px`;
+                if (!raw && editor.isActive('heading', { level: 2 })) raw = `${Math.round(1.35*16)}px`;
+                if (!raw && editor.isActive('heading', { level: 3 })) raw = `${Math.round(1.15*16)}px`;
                 const m = String(raw || '16px').match(/[\d\.]+/);
                 const n = m ? Number(m[0]) : 16;
                 return Number.isFinite(n) ? n : 16;
@@ -423,14 +418,7 @@ export default function EditAgreementPage({ params }: { params: { id: string } }
                 <option key={opt.label} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            <button
-              type="button"
-              className="toolbar-btn"
-              title="Add Page Break"
-              onClick={() => editor?.chain().focus().insertContent('<div class="page-break"></div>').run()}
-            >
-              + Page
-            </button>
+            {/* Removed "+ Page" button that inserted page-breaks */}
           </div>
         </div>
         <EditorContent editor={editor} className={`latex-editor ${agreementData.status !== 'draft' ? 'pointer-events-none opacity-75' : ''}`} />

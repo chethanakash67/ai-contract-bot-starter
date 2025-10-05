@@ -11,10 +11,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
     const baseStyles = `
       body { margin: 0; padding: 0; }
       .latex-prose { font-family: Arial, \"Helvetica Neue\", Helvetica, sans-serif; font-size: 16px; line-height: 1.7; color: #111; max-width: 7.5in; margin: 0 auto; }
-      .latex-prose h1,.latex-prose h2,.latex-prose h3{ text-transform: uppercase; letter-spacing: .12em; margin: 1.5em 0 .75em; font-weight: 800; }
-      .latex-prose h1{ font-size: 2.25rem; }
-      .latex-prose h2{ font-size: 1.75rem; }
-      .latex-prose h3{ font-size: 1.35rem; }
+      .latex-prose h1,.latex-prose h2,.latex-prose h3{ text-transform: uppercase; letter-spacing: .12em; margin: 1.5em 0 .75em; }
       .latex-prose p{ margin: 0 0 1em; }
       .latex-prose table{ border-collapse: collapse; width: 100%; margin: 1em 0; }
       .latex-prose th,.latex-prose td{ border: 1px solid #d1d5db; padding: .5em .65em; }

@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 
 export default function ActionsClient({ id, status }: { id: string; status: 'draft' | 'completed' | 'accepted' }) {
   const router = useRouter();
@@ -11,19 +10,14 @@ export default function ActionsClient({ id, status }: { id: string; status: 'dra
       const data = await resp.json().catch(() => ({}));
       const url = data?.url || `/api/agreements/${id}/pdf`;
       window.open(url, '_blank');
-    } catch (e) {
-      toast.error('PDF export failed');
-    }
+    } catch {}
   }
 
   async function finalize() {
     try {
       await fetch(`/api/agreements/${id}/status`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'completed' }) });
       router.refresh();
-      toast.success('Marked as completed');
-    } catch (e) {
-      toast.error('Failed to mark completed');
-    }
+    } catch {}
   }
 
   async function shareEmail() {
@@ -37,15 +31,17 @@ export default function ActionsClient({ id, status }: { id: string; status: 'dra
       if (url) {
         try { await navigator.clipboard.writeText(url); } catch {}
         const href = `mailto:?subject=${subject}&body=${body}`;
-        // Navigate directly to mailto to avoid popup blockers
-        window.location.href = href;
-        toast.success('Share link copied to clipboard');
+        // Programmatic anchor click tends to be more reliable across browsers
+        const a = document.createElement('a');
+        a.href = href;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { try { document.body.removeChild(a); } catch {} }, 0);
       } else {
         throw new Error('No URL returned');
       }
-    } catch (e: any) {
-      toast.error(e?.message || 'Share email failed');
-    }
+    } catch {}
   }
 
   return (

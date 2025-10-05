@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 
 async function loadByToken(token: string) {
@@ -28,7 +28,7 @@ export default async function ShareView({ params }: { params: { token: string } 
         <article className="prose max-w-none" dangerouslySetInnerHTML={{ __html: ag?.draftHtml || "<p>No content</p>" }} />
       </div>
       {link.allowDownload && ag?.pdfUrl ? (
-        <a href={ag.pdfUrl} target="_blank" className="inline-block mt-4 px-3 py-2 bg-black text-white rounded">Download PDF</a>
+        <a href={`/api/share/${link.token}/pdf`} target="_blank" className="inline-block mt-4 px-3 py-2 bg-black text-white rounded">Download PDF</a>
       ) : null}
     </main>
   );
