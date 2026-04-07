@@ -28,6 +28,8 @@ A minimal Next.js (App Router + TypeScript) starter for a web-based **AI Proposa
    ```
 
 5. **Playwright (for server-side PDF)**
+
+trail
    ```bash
    npx playwright install --with-deps
    ```
